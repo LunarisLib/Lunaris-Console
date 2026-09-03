@@ -9,7 +9,7 @@ namespace Lunaris {
 namespace Console {
 
     const Console::console_ctl Console::no_line() {
-        Console::console_ctl ctl(std::unique_lock<std::mutex>{m_safe}, false);
+        Console::console_ctl ctl(_get_global_stdout_mtx(), false);
         return ctl;
     }
 
@@ -19,15 +19,11 @@ namespace Console {
     }
 
     const Console::console_ctl& Console::console_ctl::operator<<(const e_color& color) const {
-#ifdef _WIN32
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), static_cast<int>(color));
-#else
         const auto color_u = static_cast<uint8_t>(color);
 		std::cout
             << "\033["
             << (color_u >= 8 ? (color_u + 90 - 8) : (color_u + 30))
             << "m";
-#endif
         return *this;
     }
 

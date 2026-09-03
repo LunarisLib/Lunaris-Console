@@ -7,6 +7,8 @@
 #include <functional>
 #include <random>
 
+#include <Lunaris/console.h>
+
 inline std::string generate_random_string(size_t size)
 {
     constexpr std::string_view characters = "0123456789abcdefhijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=+-*/@!~\\/$% ";
@@ -25,19 +27,22 @@ inline std::string generate_random_string(size_t size)
     return str;
 }
 
-template <typename Logger, std::size_t... Is>
-void chain_vector_impl(Logger& logger, const std::vector<std::string>& vec, std::index_sequence<Is...>) {
+// ========== COUT FORMAT ========== //
+
+template <std::size_t... Is>
+void chain_vector_impl(Lunaris::Console::Console& logger, const std::vector<std::string>& vec, std::index_sequence<Is...>) {
     // Expands to: logger << vec[0] << vec[1] << vec[2] ... << vec[N-1];
     (logger << ... << vec[Is]);
 }
 
-template <std::size_t N, typename Logger>
-void chain_vector(Logger& logger, const std::vector<std::string>& vec)
+template <std::size_t N>
+void chain_vector(Lunaris::Console::Console& logger, const std::vector<std::string>& vec)
 {
+    if (vec.size() < N) {
+        throw std::out_of_range("Vector has fewer elements than N");
+    }
     chain_vector_impl(logger, vec, std::make_index_sequence<N>{});
 }
-
-
 
 
 // Struct to store chunks of output and who wrote them

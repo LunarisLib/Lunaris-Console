@@ -5,7 +5,7 @@ namespace Console {
 
     template<typename T>
     const Console::console_ctl Console::operator<<(const T& arg) {
-        Console::console_ctl ctl(std::unique_lock<std::mutex>{m_safe});
+        Console::console_ctl ctl(_get_global_stdout_mtx());
         ctl << arg;
 		return ctl;
     }

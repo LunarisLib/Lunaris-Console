@@ -8,9 +8,8 @@
 
 using namespace Lunaris::Console;
 
-constexpr size_t num_of_strings = 1e4;
+constexpr size_t string_length = 1 << 15;
 constexpr size_t num_of_threads = 128;
-
 
 int main() {
     const auto log = capture_block([]{
@@ -19,19 +18,17 @@ int main() {
         std::vector<std::thread> running_parallel{};
 
         const auto fcn_parallel = [&] {
-            std::vector<std::string> random_strs;
-            for(size_t p = 0; p < num_of_strings; ++p) {
-                random_strs.push_back(generate_random_string(50));
-            }
+            const auto big_string = generate_random_string(string_length);
+            
             ++ready_count;
             while(waiter) std::this_thread::yield();
 
-            chain_vector<num_of_strings>(cout, random_strs);
+            mprint("{}{}{}{}", big_string, big_string, big_string, big_string);
 
             --ready_count;
         };
 
-        std::printf("Spawning %zu threads, each generating %zu string(s)...\n", num_of_threads, num_of_strings);
+        std::printf("Spawning %zu threads, each generating a string of length = %zu...\n", num_of_threads, string_length);
 
         for(size_t k = 0; k < num_of_threads; ++k) {
             running_parallel.push_back(std::thread(fcn_parallel));
@@ -50,7 +47,7 @@ int main() {
         for(auto& i : running_parallel) i.join();
     });
 
-    cout << "Checking results...";
+    mprintln("Checking results...");
 
     std::set<std::thread::id> context_switch_counter;
     std::thread::id last_id = log.size() ? log[0].thread_id : std::thread::id{};
@@ -69,7 +66,7 @@ int main() {
         std::printf("Concurrency is a problem.\n");
         return 1;
     }
-    cout << e_color::GREEN << "Concurrency went great!";
+    mprintln("{}Concurrency went great!", e_color::GREEN);
 
     return 0;
 }
