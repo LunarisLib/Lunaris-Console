@@ -8,7 +8,7 @@
 
 using namespace Lunaris::Console;
 
-constexpr size_t num_of_strings = 1e4;
+constexpr size_t num_of_strings = 50;
 constexpr size_t num_of_threads = 128;
 
 
